@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+
+  <meta charset="UTF-8">
+  
+<link rel="apple-touch-icon" type="image/png" href="https://cpwebassets.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png" />
+<meta name="apple-mobile-web-app-title" content="CodePen">
+
+<link rel="shortcut icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico" />
+
+<link rel="mask-icon" type="" href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111" />
+
+
+  <title>CodePen - Student Manager v.1.0</title>
+  
+  
+  
+  
+<style>
+body{
+  text-align:center;
+  font-family:Helvetica Narrow, sans-serif;
+/*   background:#f7faff; */
+}
+
+.column{
+  float:center;
+  padding:50px;
+  
+/*   background:lightgrey; */
+}
+
+textarea{
+  width: 200px;
+  height: 100px;
+  vertical-align: top;
+  overflow:auto;
+  resize:none;
+  color:grey;
+}
+
+.addQ{
+  width:30px;
+  height:30px;
+}
+
+button {
+  width:100px;
+  height:80px;
+  border:none;
+  background:#d3d9e3;
+  border-radius:10px;
+/*   font-family:Helvetica Narrow, sans-serif; */
+}
+
+button:hover{
+  background:#c5d5ed;
+  color:blue;
+}
+
+#genButton{
+  width:205px;
+}
+
+#randomPick{
+  width:205px;
+}
+
+.important {
+  font-weight:bold;
+/*   font-size:100px; */
+}
+
+/* The alert message box */
+.alert {
+  padding: 20px;
+  background-color: #f44336; /* Red */
+  color: white;
+  margin-bottom: 15px;
+}
+
+/* The close button */
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* When moving the mouse over the close button */
+.closebtn:hover {
+  color: black;
+}
+</style>
+
+  
+  
+  
+  
+
+</head>
+
+<body translate="no" >
+  <div class = "important">Most Active Student:</div> <div id = "topStudent"> ... </div>
+<div class = "important">Average p/Student:</div><div id = "avgQuestions">  ... </div>
+
+<!-- <button id = "testButton"> Add Test Student </button> -->
+
+<div>
+<button id = "randomPick"> Pick Student With 0 Points </button>
+  
+</div>
+
+<div class = "important">Picked: </div><div id = "selectedStudent"> ... </div>
+
+
+<!-- </div>
+<span id = "selectionText"> Selection: 2 </span>
+<button id = "of2"> Of 2 </button> 
+<button id = "of3"> Of 3 </button> 
+<button id = "of4"> Of 4 </button> 
+
+<button id = "createGroups"> Create Groups </button>
+</div> -->
+
+<div id = "groupList" class = "row">
+  <div id = "mainList" class = "column">
+    ---
+  </div>
+
+  
+</div>
+
+<button id = "saveButton"> Save Students </button>
+<button id = "loadButton"> Load Students </button>
+<div id = "err"></div>
+
+<div>Paste class list below. </div>
+<textarea id = "studentGen">Firstname Lastname,Firstname Lastname</textarea>
+
+<div>
+<button id = "genButton"> Create List </button>
+</div>
+  
+  
+      <script id="rendered-js" >
+console.clear();
+
+//saving a loading
+let err = document.getElementById("err");
+const save = document.getElementById("saveButton");
+const load = document.getElementById("loadButton");
+
+if (typeof Storage !== "undefined") {
+  // Code for localStorage/sessionStorage.
+} else {
+  err.innerHTML = "No local storage supported on this browser.";
+}
+
+//Generation Code
+const genButton = document.getElementById("genButton");
+let studentGen = document.getElementById("studentGen");
+
+let totalStudents = [];
+const mainList = document.getElementById("mainList");
+const testList = document.getElementById("mainList2");
+
+//const addButton = document.getElementById("testButton");
+
+//Stuff For randstudent and active
+const randomPick = document.getElementById("randomPick");
+let activeStudentText = document.getElementById("topStudent");
+let averageText = document.getElementById("avgQuestions");
+let selectedStudent = document.getElementById("selectedStudent");
+
+function Student(num, first, last, questions, participations) {
+  this.num = num;
+  this.first = first;
+  this.last = last;
+  this.questions = questions;
+  this.participations = participations;
+}
+
+function addNewStudent() {
+  let test = new Student(totalStudents.length + 1, "Bob", "Smith", 0, 0);
+  totalStudents.push(test);
+  populateList(mainList);
+  updateMostActive();
+  console.log(totalStudents);
+}
+
+//addButton.addEventListener("click", addNewStudent);
+
+groupTextUpdate = () => {
+  //groupText.innerHTML = "Selection: " + groupSize;
+};
+
+setInterval(groupTextUpdate, 10);
+
+setGroupSize = (num) => {
+  groupSize = num;
+  //console.log(num);
+};
+
+populateList = (list) => {
+  //Starts by clearing the list.
+  while (list.firstChild) {
+    list.removeChild(list.firstChild);
+  }
+
+  //Then generates the text elements and buttons.
+  for (i = 0; i < totalStudents.length; i++) {
+    let newListItem = document.createElement("div");
+    let newText = document.createTextNode(
+      totalStudents[i].num +
+        ". " +
+        totalStudents[i].first +
+        " " +
+        totalStudents[i].last +
+        ", Questions: " +
+        totalStudents[i].questions
+    );
+    newListItem.appendChild(newText);
+
+    let addQButton = document.createElement("button");
+    addQButton.innerHTML = "+";
+    addQButton.addEventListener("click", addQuestion);
+    addQButton.id = totalStudents[i].num;
+    addQButton.className  = "addQ";
+    newListItem.appendChild(addQButton);
+    //console.log(addQButton.parentNode);
+
+    list.appendChild(newListItem);
+  }
+};
+
+addQuestion = (e) => {
+  for (i = 0; i < totalStudents.length; i++) {
+    if (e.target.id == totalStudents[i].num) {
+      totalStudents[i].questions++;
+    }
+
+    //console.log(totalStudents);
+  }
+  //console.log(e.target.id);
+
+  updateMostActive();
+  populateList(mainList);
+};
+
+updateMostActive = () => {
+  let activStudent = new Student(0, "", "", 0, 0);
+
+  for (i = 0; i < totalStudents.length; i++) {
+    if (totalStudents[i].questions > activStudent.questions) {
+      activStudent = totalStudents[i];
+    }
+  }
+
+  //activStudent = totalStudents[0];
+
+  activeStudentText.innerHTML =
+    "" +
+    activStudent.first +
+    " " +
+    activStudent.last +
+    ", " +
+    activStudent.questions +
+    " Points";
+
+  let averageScore = 0;
+  for (i = 0; i < totalStudents.length; i++) {
+    averageScore += totalStudents[i].questions;
+  }
+
+  averageScore = averageScore / totalStudents.length;
+  averageText.innerHTML =  averageScore;
+};
+
+pickLowStudent = () => {
+  let lowStudents = [];
+
+  for (i = 0; i < totalStudents.length; i++) {
+    if (totalStudents[i].questions < 1) {
+      lowStudents.push(totalStudents[i]);
+    }
+  }
+
+  //console.log(lowStudents);
+
+  let dice = Math.floor(Math.random() * lowStudents.length);
+
+  console.log(dice);
+  selectedStudent.innerHTML =
+    "Picked: " + lowStudents[dice].first + " " + lowStudents[dice].last;
+};
+
+randomPick.addEventListener("click", pickLowStudent);
+
+function SaveStudents() {
+  //First, get the ammount of Students and save that num
+  let studs = totalStudents.length;
+  localStorage.setItem("total", studs.toString());
+  //Then, loop through and save the appropriate data
+  for (i = 0; i < studs; i++) {
+    localStorage.setItem("f" + i.toString(), totalStudents[i].first);
+    localStorage.setItem("l" + i.toString(), totalStudents[i].last);
+    localStorage.setItem("n" + i.toString(), totalStudents[i].num);
+    localStorage.setItem("q" + i.toString(), totalStudents[i].questions);
+  }
+}
+
+function LoadStudents() {
+  //First, find out how many students were in the list
+  let studs = parseInt(localStorage.getItem("total"));
+
+  //Then, create new student objects based on how many students there were, and apply
+  //the appropraite data.
+  for (i = 0; i < studs; i++) {
+    let test = new Student(
+      totalStudents.length + 1,
+      localStorage.getItem("f" + i.toString()),
+      localStorage.getItem("l" + i.toString()),
+      parseInt(localStorage.getItem("q" + i.toString())),
+      0
+    );
+    totalStudents.push(test);
+  }
+  //Finnaly, update the list.
+  populateList(mainList);
+  updateMostActive();
+}
+
+save.addEventListener("click", SaveStudents);
+load.addEventListener("click", LoadStudents);
+
+function GenerateListFromText() {
+  let textString = studentGen.value;
+
+  let indexer = 0;
+  let firstName = "";
+  let lastName = "";
+
+  for (i = 0; i < textString.length; i++) {
+    if (textString.charAt(i) != " " && textString.charAt(i) != ",") {
+      if (indexer == 0) {
+        //console.log("test");
+        firstName += textString.charAt(i);
+      } else if (indexer == 1) {
+        lastName += textString.charAt(i);
+      }
+    } else if (textString.charAt(i) == " " || textString.charAt(i) == "."){
+      if (indexer == 0) {
+        indexer = 1;
+        console.log("epic");
+      } else if (indexer == 1 || textString.charAt(i) == ".") {
+        
+        let newStud = new Student (totalStudents.length + 1, firstName,
+                                lastName, 0,0);
+      console.log(newStud);
+      totalStudents.push(newStud);
+        firstName = "";
+      lastName = "";
+      indexer = 0;
+      }
+    } else if (textString.charAt(i) == ","){
+      let newStud = new Student (totalStudents.length + 1, firstName,
+                                lastName, 0,0);
+      //console.log(newStud);
+      totalStudents.push(newStud);
+      firstName = "";
+      lastName = "";
+      indexer = 0;
+    }
+  }
+  
+  let newStud = new Student (totalStudents.length + 1, firstName,
+                                lastName, 0,0);
+      //console.log(newStud);
+      totalStudents.push(newStud);
+      firstName = "";
+      lastName = "";
+      indexer = 0;
+
+  
+  populateList(mainList);
+  //console.log(totalStudnet)
+  updateMostActive();
+  
+}
+
+genButton.addEventListener("click", GenerateListFromText);
+
+//init();
+//setInterval(populateList, 100);
+    </script>
+
+  
+
+</body>
+
+</html>
+ 
