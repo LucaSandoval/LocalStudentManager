@@ -7,15 +7,18 @@
 
   <meta charset="UTF-8">
   
-<link rel="apple-touch-icon" type="image/png" href="https://cpwebassets.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png" />
+<!-- <link rel="apple-touch-icon" type="image/png" href="https://cpwebassets.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png" />
 <meta name="apple-mobile-web-app-title" content="CodePen">
 
 <link rel="shortcut icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico" />
 
-<link rel="mask-icon" type="" href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111" />
+<link rel="mask-icon" type="" href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111" /> -->
+
+<!-- Bootstrap stuff -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
 
-  <title>CodePen - Student Manager v.1.0</title>
+<title>Student Manager v.1.1</title>
   
   
   
@@ -70,6 +73,10 @@ button:hover{
   width:205px;
 }
 
+#clear{
+  width:205px;
+}
+
 .important {
   font-weight:bold;
 /*   font-size:100px; */
@@ -95,10 +102,38 @@ button:hover{
   transition: 0.3s;
 }
 
+.navbar-text{
+  font-size: 30px;
+}
+
+.nav-link{
+  padding-top: 0;
+  padding-bottom: 0;
+  height: 60px;
+  line-height: 60px;
+  /*color:red;*/
+}
+
+
 /* When moving the mouse over the close button */
 .closebtn:hover {
   color: black;
 }
+
+
+select{
+  width:200px;
+  height:30px;
+}
+
+#message{
+  color:green;
+}
+
+nav{
+  background: #dbdbdb;
+}
+
 </style>
 
   
@@ -109,6 +144,14 @@ button:hover{
 </head>
 
 <body translate="no" >
+
+  <nav class="nav">
+  
+</nav>
+
+
+<!-- <h1>Local Student Manager v1.0</h1> -->
+
   <div class = "important">Most Active Student:</div> <div id = "topStudent"> ... </div>
 <div class = "important">Average p/Student:</div><div id = "avgQuestions">  ... </div>
 
@@ -116,6 +159,11 @@ button:hover{
 
 <div>
 <button id = "randomPick"> Pick Student With 0 Points </button>
+  
+</div>
+
+<div>
+<button id = "clear"> Clear All Student Points </button>
   
 </div>
 
@@ -131,28 +179,45 @@ button:hover{
 <button id = "createGroups"> Create Groups </button>
 </div> -->
 
-<div id = "groupList" class = "row">
-  <div id = "mainList" class = "column">
+<div id = "groupList" class = "container">
+  <div id = "mainList" class = "col">
     ---
   </div>
 
   
+<div id = "message" class = "container"> </div>
+
 </div>
 
 <button id = "saveButton"> Save Students </button>
 <button id = "loadButton"> Load Students </button>
 <div id = "err"></div>
 
+<select name = "Block" id = "blockPick">
+  <option value="block1">Block 1</option>
+  <option value="block2">Block 2</option>
+  <option value="block3">Block 3</option>
+  <option value="block4">Block 4</option>
+  <option value="block5">Block 5</option>
+  <option value="block6">Block 6</option>
+  <option value="block7">Block 7</option>
+  <option value="block8">Block 8</option>
+</select>
+
 <div>Paste class list below. </div>
-<textarea id = "studentGen">Firstname Lastname,Firstname Lastname</textarea>
+<textarea id = "studentGen">Firstname Lastname, Firstname Lastname</textarea>
 
 <div>
 <button id = "genButton"> Create List </button>
 </div>
   
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
   
       <script id="rendered-js" >
 console.clear();
+
+$("nav").load("managernav.html");
 
 //saving a loading
 let err = document.getElementById("err");
@@ -180,6 +245,12 @@ const randomPick = document.getElementById("randomPick");
 let activeStudentText = document.getElementById("topStudent");
 let averageText = document.getElementById("avgQuestions");
 let selectedStudent = document.getElementById("selectedStudent");
+
+const blockPick = document.getElementById("blockPick");
+
+const clearButton = document.getElementById("clear");
+
+let message = document.getElementById("message");
 
 function Student(num, first, last, questions, participations) {
   this.num = num;
@@ -209,6 +280,19 @@ setGroupSize = (num) => {
   groupSize = num;
   //console.log(num);
 };
+
+let timer = 0;
+
+function updateMessage(){
+  if (timer > 0){
+    timer -= 1;
+  } else {
+    message.innerHTML = "";
+  }
+
+}
+
+setInterval(updateMessage, 1000);
 
 populateList = (list) => {
   //Starts by clearing the list.
@@ -252,6 +336,7 @@ addQuestion = (e) => {
   }
   //console.log(e.target.id);
 
+  //console.log(blockPick.options[0].text);
   updateMostActive();
   populateList(mainList);
 };
@@ -282,7 +367,7 @@ updateMostActive = () => {
   }
 
   averageScore = averageScore / totalStudents.length;
-  averageText.innerHTML =  averageScore;
+  averageText.innerHTML =  averageScore.toFixed(2);;
 };
 
 pickLowStudent = () => {
@@ -300,36 +385,68 @@ pickLowStudent = () => {
 
   console.log(dice);
   selectedStudent.innerHTML =
-    "Picked: " + lowStudents[dice].first + " " + lowStudents[dice].last;
+    "" + lowStudents[dice].first + " " + lowStudents[dice].last;
 };
 
 randomPick.addEventListener("click", pickLowStudent);
 
+clearAllPoint = () =>{
+  for (i = 0; i < totalStudents.length; i++){
+    totalStudents[i].questions = 0;
+  }
+
+  populateList(mainList);
+  updateMostActive();
+}
+
+clear.addEventListener("click", clearAllPoint);
+
 function SaveStudents() {
   //First, get the ammount of Students and save that num
   let studs = totalStudents.length;
-  localStorage.setItem("total", studs.toString());
+
+  //Also, get the id of the block number
+  let blockNum = blockPick.value;
+
+  localStorage.setItem(blockNum + "total", studs.toString());
+
+  timer = 2;
+  message.innerHTML = "Saved student list to " + blockNum;
+  
   //Then, loop through and save the appropriate data
   for (i = 0; i < studs; i++) {
-    localStorage.setItem("f" + i.toString(), totalStudents[i].first);
-    localStorage.setItem("l" + i.toString(), totalStudents[i].last);
-    localStorage.setItem("n" + i.toString(), totalStudents[i].num);
-    localStorage.setItem("q" + i.toString(), totalStudents[i].questions);
+    localStorage.setItem(blockNum + "f" + i.toString(), totalStudents[i].first);
+    localStorage.setItem(blockNum + "l" + i.toString(), totalStudents[i].last);
+    localStorage.setItem(blockNum + "n" + i.toString(), totalStudents[i].num);
+    localStorage.setItem(blockNum + "q" + i.toString(), totalStudents[i].questions);
   }
 }
 
 function LoadStudents() {
-  //First, find out how many students were in the list
-  let studs = parseInt(localStorage.getItem("total"));
 
+
+  //Clear current list before loading old one
+
+  totalStudents = [];
+
+  populateList(mainList);
+
+
+  let blockNum = blockPick.value;
+  //First, find out how many students were in the list
+  let studs = parseInt(localStorage.getItem(blockNum + "total"));
+
+  timer = 2;
+  message.innerHTML = "Loaded student list from " + blockNum;
+  
   //Then, create new student objects based on how many students there were, and apply
   //the appropraite data.
   for (i = 0; i < studs; i++) {
     let test = new Student(
       totalStudents.length + 1,
-      localStorage.getItem("f" + i.toString()),
-      localStorage.getItem("l" + i.toString()),
-      parseInt(localStorage.getItem("q" + i.toString())),
+      localStorage.getItem(blockNum + "f" + i.toString()),
+      localStorage.getItem(blockNum + "l" + i.toString()),
+      parseInt(localStorage.getItem(blockNum + "q" + i.toString())),
       0
     );
     totalStudents.push(test);
@@ -349,7 +466,18 @@ function GenerateListFromText() {
   let firstName = "";
   let lastName = "";
 
+  let endofname = 0;
+
   for (i = 0; i < textString.length; i++) {
+
+    
+
+    if (endofname == 1){
+      endofname = 0;
+      // console.log("test");
+       continue;
+    }
+
     if (textString.charAt(i) != " " && textString.charAt(i) != ",") {
       if (indexer == 0) {
         //console.log("test");
@@ -360,12 +488,12 @@ function GenerateListFromText() {
     } else if (textString.charAt(i) == " " || textString.charAt(i) == "."){
       if (indexer == 0) {
         indexer = 1;
-        console.log("epic");
+        //console.log("epic");
       } else if (indexer == 1 || textString.charAt(i) == ".") {
         
         let newStud = new Student (totalStudents.length + 1, firstName,
                                 lastName, 0,0);
-      console.log(newStud);
+      //console.log(newStud);
       totalStudents.push(newStud);
         firstName = "";
       lastName = "";
@@ -374,7 +502,8 @@ function GenerateListFromText() {
     } else if (textString.charAt(i) == ","){
       let newStud = new Student (totalStudents.length + 1, firstName,
                                 lastName, 0,0);
-      //console.log(newStud);
+      
+      endofname = 1;
       totalStudents.push(newStud);
       firstName = "";
       lastName = "";
@@ -398,6 +527,7 @@ function GenerateListFromText() {
 }
 
 genButton.addEventListener("click", GenerateListFromText);
+
 
 //init();
 //setInterval(populateList, 100);
